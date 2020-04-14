@@ -6,21 +6,26 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class AssignmentsService {
-    constructor(@InjectModel ('Assignment') private readonly classModel: Model <Assignment>){}
+    constructor(@InjectModel('Assignment') private readonly assignmentModel: Model<Assignment>) { }
 
-    async create(createAssignmentDto: CreateAssignmentDto){
-        const createdAssignment = new this.classModel(createAssignmentDto);
+    async create(createAssignmentDto: CreateAssignmentDto) {
+        const createdAssignment = new this.assignmentModel(createAssignmentDto);
         await createdAssignment.save();
         return createdAssignment;
     }
 
-    async findAll(){
-        return await this.classModel.find();
+    async findAll() {
+        return await this.assignmentModel.find();
     }
 
-    async update(id: string, updateAssignment: CreateAssignmentDto){
+    async findByClassId(id: string) {
+        const assignments = await this.assignmentModel.find({ class_id: id}, 'title description');
+        return assignments;
+    }
+
+    async update(id: string, updateAssignment: CreateAssignmentDto) {
         try {
-            const updatedAssignment = await this.classModel.findById(id);
+            const updatedAssignment = await this.assignmentModel.findById(id);
             updatedAssignment.title = updateAssignment.title;
             updatedAssignment.description = updateAssignment.description;
             updatedAssignment.class_id = updateAssignment.class_id;
@@ -30,12 +35,12 @@ export class AssignmentsService {
         }
     }
 
-    async delete(id: string){
+    async delete(id: string) {
         try {
-            const assignmentDeleted = await this.classModel.findById(id);
+            const assignmentDeleted = await this.assignmentModel.findById(id);
             await assignmentDeleted.delete();
         } catch (error) {
-            throw new NotFoundException ('Assignment not found, deletion not completed');
+            throw new NotFoundException('Assignment not found, deletion not completed');
         }
     }
 }

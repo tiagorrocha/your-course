@@ -6,29 +6,29 @@ import { AssignmentsService } from './assignments.service';
 
 @Controller('assignments')
 export class AssignmentsController {
-    constructor(private readonly assignmentsService: AssignmentsService){}
+    constructor(private readonly assignmentsService: AssignmentsService) { }
 
     @UseGuards(AuthGuard('jwt'), TeacherGuard)
     @Post()
-    async create(@Body() createAssignmentDto: CreateAssignmentDto){
+    async create(@Body() createAssignmentDto: CreateAssignmentDto) {
         return await this.assignmentsService.create(createAssignmentDto);
     }
 
     @Get()
-    async findAll(){
+    async findAll() {
         return await this.assignmentsService.findAll();
     }
 
     @UseGuards(AuthGuard('jwt'), TeacherGuard)
     @Put(':id')
-    async update(@Param ('id') id: string, @Body() 
-                updateAssignment: CreateAssignmentDto){
+    async update(@Param('id') id: string, @Body()
+    updateAssignment: CreateAssignmentDto) {
         return await this.assignmentsService.update(id, updateAssignment);
     }
 
     @UseGuards(AuthGuard('jwt'), TeacherGuard)
     @Delete(':id')
-    async delete(@Param('id') id: string){
+    async delete(@Param('id') id: string) {
         return await this.assignmentsService.delete(id);
     }
 }
