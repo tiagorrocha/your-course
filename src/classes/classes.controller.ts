@@ -3,31 +3,32 @@ import { ClassesService } from './classes.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminGuard } from 'src/guards/admin.guard';
+import { UpdateClassDto } from './dto/update-class.dto';
 
 @Controller('classes')
 export class ClassesController {
-    constructor(private readonly classesService: ClassesService){}
+    constructor(private readonly classesService: ClassesService) { }
 
     @UseGuards(AuthGuard('jwt'), AdminGuard)
     @Post()
-    async create(@Body() createClassDto: CreateClassDto){
+    async create(@Body() createClassDto: CreateClassDto) {
         return await this.classesService.create(createClassDto);
     }
 
     @Get()
-    async findAll(){
+    async findAll() {
         return await this.classesService.findAll();
     }
 
     @UseGuards(AuthGuard('jwt'), AdminGuard)
     @Put(':id')
-    async update(@Param('id') id: string, @Body() updateClass: CreateClassDto){
+    async update(@Param('id') id: string, @Body() updateClass: UpdateClassDto) {
         return await this.classesService.update(id, updateClass);
     }
 
     @UseGuards(AuthGuard('jwt'), AdminGuard)
     @Delete(':id')
-    async delete(@Param('id') id: string){
+    async delete(@Param('id') id: string) {
         return await this.classesService.delete(id);
     }
 }
