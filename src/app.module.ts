@@ -8,10 +8,12 @@ import { ClassesModule } from './classes/classes.module';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { StudentMiddleware } from './middleware/student.middleware';
 import { TeacherMiddleware } from './middleware/teacher.middleware';
+import { SeedsModule } from './seeds/seeds.module';
 
 @Module({
   imports: [AuthModule, UsersModule, ClassesModule, AssignmentsModule,
-            MongooseModule.forRoot('mongodb://localhost/auth-jwt', { useNewUrlParser: true, useUnifiedTopology: true})],
+            MongooseModule.forRoot('mongodb://localhost/auth-jwt', { useNewUrlParser: true, useUnifiedTopology: true}),
+            SeedsModule],
   controllers: [AppController],
   providers: [AppService],
 })
