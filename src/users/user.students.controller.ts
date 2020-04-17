@@ -3,6 +3,8 @@ import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from './dto/create-user.dto';
 import { StudentGuard } from 'src/guards/student.guard';
+import { RegisterStudentClassDto } from './dto/register-student-class.user.dto';
+import { User } from 'src/utils/user.decorator';
 
 @Controller('users/students')
 export class UserStudentsController {
@@ -29,5 +31,11 @@ export class UserStudentsController {
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return await this.usersService.delete(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), StudentGuard)
+  @Post('register-student-class')
+  async RegisterStudentClass(@User() user: any, @Body() registerStudentClass: RegisterStudentClassDto) {
+    return await this.usersService.registerStudentClass(user._id, registerStudentClass);
   }
 }

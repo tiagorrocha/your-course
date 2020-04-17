@@ -58,6 +58,6 @@ export class AssignmentsService {
         if (!assignmentDeleted) {
             throw new NotFoundException("Assignment not found, deletion not completed");
         }
-        await assignmentDeleted.delete();
+        await assignmentDeleted.remove();
     }
 }

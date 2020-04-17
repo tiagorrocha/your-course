@@ -7,6 +7,8 @@ import * as bcrypt from 'bcrypt';
 import { Class } from 'src/classes/interfaces/class.interface';
 import { ClassesService } from 'src/classes/classes.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { RegisterStudentClassDto } from './dto/register-student-class.user.dto';
+import { UpdateClassDto } from 'src/classes/dto/update-class.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,6 +26,23 @@ export class UsersService {
     const createdUser = new this.userModel(createUserDto);
     await createdUser.save();
     return this.sanitizeUser(createdUser);
+  }
+
+  async registerStudentClass(studentId: any, regStudentClass: RegisterStudentClassDto){
+    const { class_id, student_id } = regStudentClass;
+    if(student_id !== studentId.toString()){
+      throw new UnauthorizedException("Unauthorized to register this student");
+    }
+    const verifyClass = await this.classService.findById(class_id);
+    if(verifyClass.students.includes(student_id)){
+      throw new ConflictException("Student already registered in this class");
+    }
+    const updateClass: UpdateClassDto = {
+      teacher_id: verifyClass.teacher_id,
+      students: verifyClass.students
+    }
+    const classUpdated = await this.classService.update(class_id, updateClass);
+    return classUpdated;
   }
 
   async findOne(username: string): Promise<User> {
@@ -74,7 +93,6 @@ export class UsersService {
     try {
       const updatedUser = await this.userModel.findById(id);
       updatedUser.name = updateUser.name;
-      updatedUser.password =  await bcrypt.hash(updateUser.password, 10) ;
       updatedUser.email = updateUser.email;
       await updatedUser.save();
       return this.sanitizeUser(updatedUser);
@@ -89,18 +107,16 @@ export class UsersService {
       if (userDeleted.typeUser === "ADMIN") {
         throw new UnauthorizedException("Unauthorized to delete the admin user");
       }
-      await userDeleted.delete();
+      await userDeleted.remove();
     } catch (error) {
       throw new NotFoundException("User not found, deletion not completed");
     }
   }
 
   sanitizeUser(user: User) {
-    const result = {
-      name: user.name,
-      username: user.username,
-      email: user.email,
-    }
+    const result = user.toObject();
+    delete result['password'];
+    delete result['typeUser'];
     return result;
   }
 }

@@ -18,7 +18,7 @@ export class ClassesService {
         const { name } = createClassDto;
         const verifyClass = await this.classModel.findOne({ name });
         if (verifyClass) {
-            throw new ConflictException('Class alread exist');
+            throw new ConflictException("Class alread exist");
         }
         const createdClass = new this.classModel(createClassDto);
         await createdClass.save();
@@ -72,7 +72,7 @@ export class ClassesService {
     async delete(id: string) {
         try {
             const classDeleted = await this.classModel.findById(id);
-            await classDeleted.delete();
+            await classDeleted.remove();
         } catch (error) {
             throw new NotFoundException("Class not found, deletion not completed");
         }
