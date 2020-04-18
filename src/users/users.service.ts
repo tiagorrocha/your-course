@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { Injectable, ConflictException, NotFoundException, Inject, forwardRef, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, Inject, forwardRef, UnauthorizedException, HttpException, HttpStatus, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -28,15 +28,19 @@ export class UsersService {
     return this.sanitizeUser(createdUser);
   }
 
-  async registerStudentClass(studentId: any, regStudentClass: RegisterStudentClassDto){
+  async registerStudentClass(studentId: any, regStudentClass: RegisterStudentClassDto) {
     const { class_id, student_id } = regStudentClass;
-    if(student_id !== studentId.toString()){
+    if (student_id !== studentId.toString()) {
       throw new UnauthorizedException("Unauthorized to register this student");
     }
     const verifyClass = await this.classService.findById(class_id);
-    if(verifyClass.students.includes(student_id)){
+    if (verifyClass.students.includes(student_id)) {
       throw new ConflictException("Student already registered in this class");
     }
+    if (verifyClass.students.length >= 50) {
+      throw new ForbiddenException("Register in this class is not allowed");
+    }
+    verifyClass.students.push(student_id);
     const updateClass: UpdateClassDto = {
       teacher_id: verifyClass.teacher_id,
       students: verifyClass.students

@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
  
 (async () => {
   const app = await NestFactory.createApplicationContext(AppModule, {
-    logger: false // no logger
+    logger: false
   });
   app.select(CommandModule).get(CommandService).exec();
 })();
