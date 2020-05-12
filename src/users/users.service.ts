@@ -1,20 +1,24 @@
 import { Model } from 'mongoose';
-import { Injectable, ConflictException, NotFoundException, Inject, forwardRef, UnauthorizedException, HttpException, HttpStatus, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable, ConflictException, NotFoundException, Inject,
+  forwardRef, UnauthorizedException,
+  ForbiddenException
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { Class } from 'src/classes/interfaces/class.interface';
-import { ClassesService } from 'src/classes/classes.service';
+import { Course } from '../courses/interfaces/course.interface';
+import { CoursesService } from '../courses/courses.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { RegisterStudentClassDto } from './dto/register-student-class.user.dto';
-import { UpdateClassDto } from 'src/classes/dto/update-class.dto';
+import { RegisterStudentCourseDto } from './dto/register-student-course.user.dto';
+import { UpdateCourseDto } from '../courses/dto/update-course.dto';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>,
-    @Inject(forwardRef(() => ClassesService))
-    private readonly classService: ClassesService) { }
+    @Inject(forwardRef(() => CoursesService))
+    private readonly coursesService: CoursesService) { }
 
   async create(createUserDto: CreateUserDto): Promise<any> {
     const { username } = createUserDto;
@@ -28,25 +32,26 @@ export class UsersService {
     return this.sanitizeUser(createdUser);
   }
 
-  async registerStudentClass(studentId: any, regStudentClass: RegisterStudentClassDto) {
-    const { class_id, student_id } = regStudentClass;
+  async registerStudentCourse(studentId: any,
+    regStudentCourse: RegisterStudentCourseDto) {
+    const { course_id, student_id } = regStudentCourse;
     if (student_id !== studentId.toString()) {
       throw new UnauthorizedException("Unauthorized to register this student");
     }
-    const verifyClass = await this.classService.findById(class_id);
-    if (verifyClass.students.includes(student_id)) {
-      throw new ConflictException("Student already registered in this class");
+    const course = await this.coursesService.findById(course_id);
+    if (course.students.includes(student_id)) {
+      throw new ConflictException("Student already registered in this course");
     }
-    if (verifyClass.students.length >= 50) {
-      throw new ForbiddenException("Register in this class is not allowed");
+    if (course.students.length >= 50) {
+      throw new ForbiddenException("Register in this course is not allowed");
     }
-    verifyClass.students.push(student_id);
-    const updateClass: UpdateClassDto = {
-      teacher_id: verifyClass.teacher_id,
-      students: verifyClass.students
+    course.students.push(student_id);
+    const updateCourse: UpdateCourseDto = {
+      teacher_id: course.teacher_id,
+      students: course.students
     }
-    const classUpdated = await this.classService.update(class_id, updateClass);
-    return classUpdated;
+    const updatedCourse = await this.coursesService.update(course_id, updateCourse);
+    return updatedCourse;
   }
 
   async findOne(username: string): Promise<User> {
@@ -78,19 +83,20 @@ export class UsersService {
     return await this.userModel.find();
   }
 
-  async findStudentsClass(studentsClass: Class) {
-    const students = await this.userModel.find({ _id: { $in: studentsClass.students } }, 'name username email');
+  async findStudentsCourse(course: Course) {
+    const students = await this.userModel
+      .find({ _id: { $in: course.students } }, 'name username email');
     return students;
   }
 
-  async findClassesStudent(studentId: string) {
-    const classes = this.classService.findClassesStudent(studentId);
-    return classes;
+  async findStudentCourses(studentId: string) {
+    const studentCourses = this.coursesService.findStudentCourses(studentId);
+    return studentCourses;
   }
 
-  async findClassesTeacher(teacherId: string) {
-    const classes = this.classService.findClassesTeacher(teacherId);
-    return classes;
+  async findTeacherCourses(teacherId: string) {
+    const teacherCourses = this.coursesService.findTeacherCourses(teacherId);
+    return teacherCourses;
   }
 
   async update(id: string, updateUser: UpdateUserDto) {
@@ -98,6 +104,7 @@ export class UsersService {
       const updatedUser = await this.userModel.findById(id);
       updatedUser.name = updateUser.name;
       updatedUser.email = updateUser.email;
+      updatedUser.password = await bcrypt.hash(updateUser.password, 10)
       await updatedUser.save();
       return this.sanitizeUser(updatedUser);
     } catch (error) {
@@ -107,11 +114,11 @@ export class UsersService {
 
   async delete(id: string) {
     try {
-      const userDeleted = await this.userModel.findById(id);
-      if (userDeleted.typeUser === "ADMIN") {
+      const deletedUser = await this.userModel.findById(id);
+      if (deletedUser.typeUser === "ADMIN") {
         throw new UnauthorizedException("Unauthorized to delete the admin user");
       }
-      await userDeleted.remove();
+      await deletedUser.remove();
     } catch (error) {
       throw new NotFoundException("User not found, deletion not completed");
     }
@@ -120,7 +127,6 @@ export class UsersService {
   sanitizeUser(user: User) {
     const result = user.toObject();
     delete result['password'];
-    delete result['typeUser'];
     return result;
   }
 }

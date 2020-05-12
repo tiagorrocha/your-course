@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsMongoId } from "class-validator";
 
-export class RegisterStudentClassDto {
-    @IsMongoId({ message: "ClassId must be a mongodb id"})
-    @IsNotEmpty({ message: "ClassId must not be empty"})
-    class_id: string;
+export class RegisterStudentCourseDto {
+    @IsMongoId({ message: "CourseId must be a mongodb id"})
+    @IsNotEmpty({ message: "CourseId must not be empty"})
+    course_id: string;
 
     @IsMongoId({ message: "StudentId must be a mongodb id"})
     @IsNotEmpty({ message: "StudentId must not be empty"})

@@ -1,4 +1,7 @@
-import { CanActivate, ExecutionContext, HttpException, HttpStatus } from "@nestjs/common";
+import {
+    CanActivate, ExecutionContext,
+    HttpException, HttpStatus
+} from "@nestjs/common";
 
 export class StudentGuard implements CanActivate {
     constructor() { }

@@ -1,9 +1,12 @@
-import { Controller, Get, UseGuards, Param, Put, Body, UsePipes } from '@nestjs/common';
+import {
+  Controller, Get, UseGuards, Param,
+  Put, Body, UsePipes
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
-import { AdminGuard } from 'src/guards/admin.guard';
+import { AdminGuard } from '../guards/admin.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ValidationPipe } from 'src/pipes/validation.pipe';
+import { ValidationPipe } from '../pipes/validation.pipe';
 
 @Controller('users')
 export class UsersController {

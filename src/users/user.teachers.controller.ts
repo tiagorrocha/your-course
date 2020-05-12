@@ -1,10 +1,13 @@
-import { Controller, Get, UseGuards, Param, Post, Body, Put, Delete, UsePipes } from '@nestjs/common';
+import {
+  Controller, Get, UseGuards, Param, Post, Body,
+  Put, Delete, UsePipes
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
-import { AdminGuard } from 'src/guards/admin.guard';
+import { AdminGuard } from '../guards/admin.guard';
 import { CreateUserDto } from './dto/create-user.dto';
-import { TeacherGuard } from 'src/guards/teacher.guard';
-import { ValidationPipe } from 'src/pipes/validation.pipe';
+import { TeacherGuard } from '../guards/teacher.guard';
+import { ValidationPipe } from '../pipes/validation.pipe';
 
 @Controller('users/teachers')
 export class UserTeachersController {
@@ -18,9 +21,9 @@ export class UserTeachersController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Get('classes-teacher/:id')
-  async findClasssesTeacher(@Param('id') id: string) {
-    return await this.usersService.findClassesTeacher(id);
+  @Get('teacher-courses/:id')
+  async findTeacherCourses(@Param('id') id: string) {
+    return await this.usersService.findTeacherCourses(id);
   }
 
   @UseGuards(AuthGuard('jwt'), TeacherGuard)
